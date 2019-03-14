@@ -1,6 +1,6 @@
 # CPSC583-Project
 
-## Main Visualization
+## [Main Visualization](https://cozyburrito.github.io/CPSC583-Project/MainViz/)
 
 ## Variation 1
 
