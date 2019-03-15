@@ -119,3 +119,13 @@ button:focus {
 #labelText {
     font-size: x-large;
 }
+
+.legendSize {
+    fill: darkorchid;
+}
+
+.legendSize .legendCells .cell .label,
+.legendSize .legendTitle {
+    fill: black;
+}
+

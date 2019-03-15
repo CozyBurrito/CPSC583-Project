@@ -18,7 +18,9 @@ window.onload = function(){
  */
 const MARGINS = {top: 40, right: 10, bottom: 95, left: 150};
 
-const categories = ["Thriller", "Mystery", "Sci-Fi", "Biography", "Horror", "Fantasy", "Drama", "Crime", "Comedy", "Animation", "Adventure", "Action"];
+const CATEGORIES = ["Thriller", "Mystery", "Sci-Fi", "Biography", "Horror", "Fantasy", "Drama", "Crime", "Comedy", "Animation", "Adventure", "Action"];
+
+const COLORS = ["#ffffd9", "#edf8b1", "#c7e9b4", "#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#253494", "#081d58"];
 
 var Scatterplot = function(){
     this.data;          // contains our dataset
@@ -36,6 +38,7 @@ var Scatterplot = function(){
     this.xAxisScale;
     this.yAxisScale;
     this.rScale;
+    this.fillScale;
 
     /**
      * Function setupScales initializes D3 scales for our x and y axes
@@ -55,8 +58,12 @@ var Scatterplot = function(){
 
         // Size of circle is the films Runtime
         this.rScale = d3.scaleLinear()
-            .domain(d3.extent(this.data, function (d) { return +d["Runtime"]; } ))  //d3.extent not working
+            .domain(d3.extent(this.data, function (d) { return +d["Runtime"]; } )) 
             .range([8,20]);
+
+        this.fillScale = d3.scaleQuantile()
+            .domain(d3.extent(this.data, function (d) { return +d["AvgRating"]; } ))
+            .range(COLORS);
     };
 
     /**
@@ -128,7 +135,9 @@ var Scatterplot = function(){
                 return _vis.yAxisScale(d[yAxisSelector]);
             })
             // change some styling
-            .style("fill", "coral")
+            .style("fill", function(d){
+                return _vis.fillScale(d["AvgRating"]);
+            })
             .style("stroke", "white")
             // add a text to show up on hover
             .append("svg:title")
@@ -140,6 +149,39 @@ var Scatterplot = function(){
                         + "Revenue (Millions): " + d.Revenue + "\n" 
                         + "AvgRating: " + d.AvgRating;
             });
+    }
+
+    // Setup the legends from the scales. Uses d3-legend
+    this.setupLegends = function(){
+        // The quantile color legend
+        this.svgContainer.append("g")
+            .attr("class", "legendQuant")
+            .attr("transform", "translate(" + (_vis.width-MARGINS.left+10) + "," + (MARGINS.top) + ")");
+
+        var quantileLegend = d3.legendColor()
+            .labelFormat(d3.format(".2f"))
+            .title("Average Rating")
+            .scale(_vis.fillScale);
+
+        this.svgContainer.select(".legendQuant")
+            .call(quantileLegend);
+
+        // The linear size legend
+        this.svgContainer.append("g")
+            .attr("class", "legendSize")
+            .attr("transform", "translate(" + (_vis.width-MARGINS.left+10) + "," + (MARGINS.top+250) + ")");
+
+        var legendSize = d3.legendSize()
+            .scale(_vis.rScale)
+            .shape('circle')
+            .shapePadding(15)
+            .labelOffset(20)
+            .orient('vertical')
+            .title("Runtime (Min)");
+
+        this.svgContainer.select(".legendSize")
+            .call(legendSize);
+
     }
 
 };
@@ -176,8 +218,9 @@ function loadData(path){
         _vis.data = data;
         // let's use the scales and domain from Life Satisfaction and Employment Rate
          _vis.setupScales([MARGINS.left, _vis.width-MARGINS.left], [-10, 950],
-             [_vis.height-MARGINS.bottom-30, MARGINS.top], categories);
+             [_vis.height-MARGINS.bottom-30, MARGINS.top], CATEGORIES);
         _vis.setupAxes();
+        _vis.setupLegends();
         _vis.createCircles();
     });
 }
