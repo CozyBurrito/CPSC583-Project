@@ -16,7 +16,7 @@ window.onload = function(){
  * object to keep track of our magic numbers for margins
  * @type {{top: number, left: number, bottom: number, right: number}}
  */
-const MARGINS = {top: 40, right: 10, bottom: 95, left: 150};
+const MARGINS = {top: 40, right: 10, bottom: 100, left: 150};
 
 const CATEGORIES = ["Thriller", "Mystery", "Sci-Fi", "Biography", "Horror", "Fantasy", "Drama", "Crime", "Comedy", "Animation", "Adventure", "Action"];
 
@@ -25,7 +25,7 @@ const COLORS = ["#ffffd9", "#edf8b1", "#c7e9b4", "#7fcdbb", "#41b6c4", "#1d91c0"
 var Scatterplot = function(){
     this.data;          // contains our dataset
     this.width = 800;   // default value of 1000
-    this.height = 600;  // default value of 700
+    this.height = 750;  // default value of 700
 
     this.svgContainer;  // the SVG element where we will be drawing our vis
     this.datapoints;    // SVG elements per data point
@@ -156,7 +156,7 @@ var Scatterplot = function(){
         // The quantile color legend
         this.svgContainer.append("g")
             .attr("class", "legendQuant")
-            .attr("transform", "translate(" + (_vis.width-MARGINS.left+10) + "," + (MARGINS.top) + ")");
+            .attr("transform", "translate(" + (_vis.width-MARGINS.left+10) + "," + (MARGINS.top+12) + ")");
 
         var quantileLegend = d3.legendColor()
             .labelFormat(d3.format(".2f"))
@@ -169,7 +169,7 @@ var Scatterplot = function(){
         // The linear size legend
         this.svgContainer.append("g")
             .attr("class", "legendSize")
-            .attr("transform", "translate(" + (_vis.width-MARGINS.left+10) + "," + (MARGINS.top+250) + ")");
+            .attr("transform", "translate(" + (_vis.width-MARGINS.left+10) + "," + (MARGINS.top+262) + ")");
 
         var legendSize = d3.legendSize()
             .scale(_vis.rScale)
