@@ -220,7 +220,7 @@ function loadData(path){
          _vis.setupScales([MARGINS.left, _vis.width-MARGINS.left], [-10, 950],
              [_vis.height-MARGINS.bottom-30, MARGINS.top], CATEGORIES);
         _vis.setupAxes();
-        _vis.setupLegends();
         _vis.createCircles();
+        _vis.setupLegends();
     });
 }
