@@ -16,7 +16,9 @@ window.onload = function(){
  * object to keep track of our magic numbers for margins
  * @type {{top: number, left: number, bottom: number, right: number}}
  */
-const MARGINS = {top: 20, right: 10, bottom: 80, left: 150};
+const MARGINS = {top: 40, right: 10, bottom: 95, left: 150};
+
+const categories = ["Thriller", "Mystery", "Sci-Fi", "Biography", "Horror", "Fantasy", "Drama", "Crime", "Comedy", "Animation", "Adventure", "Action"];
 
 var Scatterplot = function(){
     this.data;          // contains our dataset
@@ -33,6 +35,7 @@ var Scatterplot = function(){
     // D3 scales
     this.xAxisScale;
     this.yAxisScale;
+    this.rScale;
 
     /**
      * Function setupScales initializes D3 scales for our x and y axes
@@ -49,6 +52,11 @@ var Scatterplot = function(){
         this.yAxisScale = d3.scalePoint()
             .domain(yDomain)
             .range(yRange);
+
+        // Size of circle is the films Runtime
+        this.rScale = d3.scaleLinear()
+            .domain(d3.extent(this.data, function (d) { return +d["Runtime"]; } ))  //d3.extent not working
+            .range([8,20]);
     };
 
     /**
@@ -107,13 +115,13 @@ var Scatterplot = function(){
         // Use D3's selectAll function to create instances of SVG:circle virtually
         // per item in our data array
         this.datapoints = this.svgContainer.selectAll("circle")
-            .data(this.data)    // use the data we loaded from CSV
-            .enter()            // access the data item (e.g., this.data[0])
-            .append("circle")   // add the circle element into our SVG container
-            .attr("r", 8)       // change some of the attributes of our circles
-            // function(d){ return d; } -> allows us to access the data we entered
+            .data(this.data)    
+            .enter()            
+            .append("circle")   
+            .attr("r", function(d){                 // Scale radius based off of film's Runtime
+                return _vis.rScale(d["Runtime"]);
+            })
             .attr("cx", function(d){
-                // use the D3 scales we created earlier to map our data values to pixels on screen
                 return _vis.xAxisScale(d[xAxisSelector]);
             })
             .attr("cy", function(d){
@@ -133,6 +141,7 @@ var Scatterplot = function(){
                         + "AvgRating: " + d.AvgRating;
             });
     }
+
 };
 
 /**
@@ -154,7 +163,7 @@ function setup(){
         _vis.svgContainer.node().getBoundingClientRect().height :
         _vis.height;
 
-    loadData("IMDB_dataset_subset.csv");
+    loadData("IMDB_dataset_processed.csv");
 }
 
 /**
@@ -166,8 +175,8 @@ function loadData(path){
     d3.csv(path).then(function(data){
         _vis.data = data;
         // let's use the scales and domain from Life Satisfaction and Employment Rate
-         _vis.setupScales([MARGINS.left, _vis.width-MARGINS.left], [-10, 550],
-             [_vis.height-MARGINS.bottom, MARGINS.top], data.map(d => d.Genre));
+         _vis.setupScales([MARGINS.left, _vis.width-MARGINS.left], [-10, 950],
+             [_vis.height-MARGINS.bottom-30, MARGINS.top], categories);
         _vis.setupAxes();
         _vis.createCircles();
     });
