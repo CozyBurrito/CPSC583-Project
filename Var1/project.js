@@ -48,9 +48,9 @@ var Scatterplot = function(){
      * @param yDomain (required) array containing the bounds of the interval from which our input comes from (e.g., [0,1] for the y-axis
      */
     this.setupScales = function(xRange, xDomain, yRange, yDomain){
-        this.xAxisScale = d3.scaleLog()
-             .domain(xDomain).nice()
-             .range(xRange).nice();
+        this.xAxisScale = d3.scaleLinear()
+            .domain(xDomain)
+            .range(xRange);
 
         this.yAxisScale = d3.scalePoint()
             .domain(yDomain)
@@ -77,14 +77,13 @@ var Scatterplot = function(){
         // call d3's axisBottom for the x-axis
         this.xAxis = d3.axisBottom(this.xAxisScale)
             .tickSize(-this.height + MARGINS.bottom + MARGINS.top)
-            .ticks(5)
-            .tickFormat(d3.format(","))
+            .ticks(10)
             .tickPadding(10);
         // call d3's axisLeft for the y-axis
         this.yAxis = d3.axisLeft(this.yAxisScale)
             .tickSize(-this.width + MARGINS.left*2)
             .ticks(10)
-            .tickPadding(15);
+            .tickPadding(10);
 
         // call our axes inside "group" (<g></g>) objects inside our SVG container
         this.svgContainer.append("g")
@@ -217,7 +216,7 @@ function loadData(path){
     d3.csv(path).then(function(data){
         _vis.data = data;
         // let's use the scales and domain from Life Satisfaction and Employment Rate
-         _vis.setupScales([MARGINS.left, _vis.width-MARGINS.left], [1e-2, 950],
+         _vis.setupScales([MARGINS.left, _vis.width-MARGINS.left], [-10, 950],
              [_vis.height-MARGINS.bottom-30, MARGINS.top], CATEGORIES);
         _vis.setupAxes();
         _vis.createCircles();
