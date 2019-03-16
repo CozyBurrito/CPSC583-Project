@@ -16,7 +16,7 @@ window.onload = function(){
  * object to keep track of our magic numbers for margins
  * @type {{top: number, left: number, bottom: number, right: number}}
  */
-const MARGINS = {top: 40, right: 10, bottom: 100, left: 160};
+const MARGINS = {top: 40, right: 10, bottom: 100, left: 150};
 
 const CATEGORIES = ["Thriller", "Mystery", "Sci-Fi", "Biography", "Horror", "Fantasy", "Drama", "Crime", "Comedy", "Animation", "Adventure", "Action"];
 
@@ -48,9 +48,9 @@ var Scatterplot = function(){
      * @param yDomain (required) array containing the bounds of the interval from which our input comes from (e.g., [0,1] for the y-axis
      */
     this.setupScales = function(xRange, xDomain, yRange, yDomain){
-        this.xAxisScale = d3.scaleLog()
-             .domain(xDomain).nice()
-             .range(xRange).nice();
+        this.xAxisScale = d3.scaleLinear()
+            .domain(xDomain)
+            .range(xRange);
 
         this.yAxisScale = d3.scalePoint()
             .domain(yDomain)
@@ -76,15 +76,14 @@ var Scatterplot = function(){
 
         // call d3's axisBottom for the x-axis
         this.xAxis = d3.axisBottom(this.xAxisScale)
-            .tickSize(-this.height + MARGINS.bottom + MARGINS.top - 26.25)
-            .ticks(5)
-            .tickFormat(d3.format(","))
+            .tickSize(-this.height + MARGINS.bottom + MARGINS.top)
+            .ticks(10)
             .tickPadding(10);
         // call d3's axisLeft for the y-axis
         this.yAxis = d3.axisLeft(this.yAxisScale)
             .tickSize(-this.width + MARGINS.left*2)
             .ticks(10)
-            .tickPadding(15);
+            .tickPadding(10);
 
         // call our axes inside "group" (<g></g>) objects inside our SVG container
         this.svgContainer.append("g")
@@ -92,9 +91,7 @@ var Scatterplot = function(){
             .call(this.xAxis);
         this.svgContainer.append("g")
             .attr("transform", `translate(${MARGINS.left}, 0)`)
-            .call(this.yAxis)
-            .call(g => g.select(".domain").remove())
-            .call(g => g.selectAll(".tick line").attr('transform', 'translate(' + 0 + ',' + -26.25 + ')'));
+            .call(this.yAxis);
 
         // add text labels
         this.svgContainer.append("text")
@@ -157,13 +154,12 @@ var Scatterplot = function(){
         // The quantile color legend
         this.svgContainer.append("g")
             .attr("class", "legendQuant")
-            .attr("transform", "translate(" + (_vis.width-MARGINS.left+20) + "," + (MARGINS.top+12) + ")");
+            .attr("transform", "translate(" + (_vis.width-MARGINS.left+10) + "," + (MARGINS.top+12) + ")");
 
         var quantileLegend = d3.legendColor()
             .labelFormat(d3.format(".2f"))
             .title("Average Rating")
-            .scale(_vis.fillScale)
-            .labelFormat(",d");
+            .scale(_vis.fillScale);
 
         this.svgContainer.select(".legendQuant")
             .call(quantileLegend);
@@ -171,7 +167,7 @@ var Scatterplot = function(){
         // The linear size legend
         this.svgContainer.append("g")
             .attr("class", "legendSize")
-            .attr("transform", "translate(" + (_vis.width-MARGINS.left+20) + "," + (MARGINS.top+262) + ")");
+            .attr("transform", "translate(" + (_vis.width-MARGINS.left+10) + "," + (MARGINS.top+262) + ")");
 
         var legendSize = d3.legendSize()
             .scale(_vis.rScale)
@@ -179,8 +175,7 @@ var Scatterplot = function(){
             .shapePadding(15)
             .labelOffset(20)
             .orient('vertical')
-            .title("Runtime (Min)")
-            .labelFormat(",d");
+            .title("Runtime (Min)");
 
         this.svgContainer.select(".legendSize")
             .call(legendSize);
@@ -220,7 +215,7 @@ function loadData(path){
     d3.csv(path).then(function(data){
         _vis.data = data;
         // let's use the scales and domain from Life Satisfaction and Employment Rate
-         _vis.setupScales([MARGINS.left, _vis.width-MARGINS.left], [1e-2, 950],
+         _vis.setupScales([MARGINS.left, _vis.width-MARGINS.left], [-10, 950],
              [_vis.height-MARGINS.bottom-30, MARGINS.top], CATEGORIES);
         _vis.setupAxes();
         _vis.createCircles();

@@ -16,7 +16,7 @@ window.onload = function(){
  * object to keep track of our magic numbers for margins
  * @type {{top: number, left: number, bottom: number, right: number}}
  */
-const MARGINS = {top: 40, right: 10, bottom: 100, left: 160};
+const MARGINS = {top: 40, right: 10, bottom: 100, left: 150};
 
 const CATEGORIES = ["Thriller", "Mystery", "Sci-Fi", "Biography", "Horror", "Fantasy", "Drama", "Crime", "Comedy", "Animation", "Adventure", "Action"];
 
@@ -76,7 +76,7 @@ var Scatterplot = function(){
 
         // call d3's axisBottom for the x-axis
         this.xAxis = d3.axisBottom(this.xAxisScale)
-            .tickSize(-this.height + MARGINS.bottom + MARGINS.top - 26.25)
+            .tickSize(-this.height + MARGINS.bottom + MARGINS.top)
             .ticks(5)
             .tickFormat(d3.format(","))
             .tickPadding(10);
@@ -92,9 +92,7 @@ var Scatterplot = function(){
             .call(this.xAxis);
         this.svgContainer.append("g")
             .attr("transform", `translate(${MARGINS.left}, 0)`)
-            .call(this.yAxis)
-            .call(g => g.select(".domain").remove())
-            .call(g => g.selectAll(".tick line").attr('transform', 'translate(' + 0 + ',' + -26.25 + ')'));
+            .call(this.yAxis);
 
         // add text labels
         this.svgContainer.append("text")
@@ -157,13 +155,12 @@ var Scatterplot = function(){
         // The quantile color legend
         this.svgContainer.append("g")
             .attr("class", "legendQuant")
-            .attr("transform", "translate(" + (_vis.width-MARGINS.left+20) + "," + (MARGINS.top+12) + ")");
+            .attr("transform", "translate(" + (_vis.width-MARGINS.left+10) + "," + (MARGINS.top+12) + ")");
 
         var quantileLegend = d3.legendColor()
             .labelFormat(d3.format(".2f"))
             .title("Average Rating")
-            .scale(_vis.fillScale)
-            .labelFormat(",d");
+            .scale(_vis.fillScale);
 
         this.svgContainer.select(".legendQuant")
             .call(quantileLegend);
@@ -171,7 +168,7 @@ var Scatterplot = function(){
         // The linear size legend
         this.svgContainer.append("g")
             .attr("class", "legendSize")
-            .attr("transform", "translate(" + (_vis.width-MARGINS.left+20) + "," + (MARGINS.top+262) + ")");
+            .attr("transform", "translate(" + (_vis.width-MARGINS.left+10) + "," + (MARGINS.top+262) + ")");
 
         var legendSize = d3.legendSize()
             .scale(_vis.rScale)
@@ -179,8 +176,7 @@ var Scatterplot = function(){
             .shapePadding(15)
             .labelOffset(20)
             .orient('vertical')
-            .title("Runtime (Min)")
-            .labelFormat(",d");
+            .title("Runtime (Min)");
 
         this.svgContainer.select(".legendSize")
             .call(legendSize);
