@@ -20,7 +20,7 @@ const MARGINS = {top: 40, right: 10, bottom: 100, left: 160};
 
 const CATEGORIES = ["Thriller", "Mystery", "Sci-Fi", "Biography", "Horror", "Fantasy", "Drama", "Crime", "Comedy", "Animation", "Adventure", "Action"];
 
-const COLORS = ["#ffffd9", "#edf8b1", "#c7e9b4", "#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#253494", "#081d58"];
+const COLORS = ["#C3F5CD", "#AAEFC5", "#91E9C5", "#7AE3CA", "#63DBD6", "#4CC0D3", "#369ACB", "#2A5DAC", "#1F2B8C", "#25166B"];
 
 var Scatterplot = function(){
     this.data;          // contains our dataset
@@ -171,7 +171,7 @@ var Scatterplot = function(){
         // The linear size legend
         this.svgContainer.append("g")
             .attr("class", "legendSize")
-            .attr("transform", "translate(" + (_vis.width-MARGINS.left+20) + "," + (MARGINS.top+262) + ")");
+            .attr("transform", "translate(" + (_vis.width-MARGINS.left+20) + "," + (MARGINS.top+292) + ")");
 
         var legendSize = d3.legendSize()
             .scale(_vis.rScale)

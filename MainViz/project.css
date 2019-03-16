@@ -133,3 +133,7 @@ circle {
     stroke-width: 1px;
     opacity: 0.60;
 }
+
+.swatch {
+    opacity: 0.60;
+}
