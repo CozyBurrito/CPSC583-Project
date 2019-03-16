@@ -4,6 +4,6 @@
 
 ## [Variation 1](https://cozyburrito.github.io/CPSC583-Project/Var1/)
 
-## Variation 2
+## [Variation 2](https://cozyburrito.github.io/CPSC583-Project/Var2/)
 
-## Variation 3
+## [Variation 3](https://cozyburrito.github.io/CPSC583-Project/Var3/)
