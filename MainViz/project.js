@@ -355,12 +355,18 @@ var Scatterplot = function () {
         var newXAxisScale = d3.event.transform.rescaleX(_vis.xAxisScale);
 
         d3.select(".xaxis")
+            .transition()
+            .duration(150)
             .call(_vis.xAxis.scale(newXAxisScale).ticks(4));
 
         _vis.svgContainer.selectAll(".datapoint")
+            .transition()
+            .duration(150)
             .attr("cx", function (d) {
                 return newXAxisScale(d["Revenue"]);
-            })
+            });
+
+        _vis.svgContainer.selectAll(".datapoint")
             .on("mouseenter", (d, i) => {
                 var xloc = newXAxisScale(d["Revenue"]);
                 var yloc = _vis.yAxisScale(d["Genre"]) - 20;
