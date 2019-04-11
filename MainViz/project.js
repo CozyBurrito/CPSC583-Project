@@ -173,6 +173,7 @@ var Scatterplot = function () {
             .data(this.data)
             .enter()
             .append("circle")
+            .attr("class", "datapoint")
             .attr("clip-path", "url(#clip)")
             .attr("r", function (d) {                 // Scale radius based off of film's Runtime
                 return _vis.rScale(d["Runtime"]);
@@ -293,7 +294,7 @@ var Scatterplot = function () {
         d3.select(".xaxis")
             .call(_vis.xAxis.scale(newXAxisScale).ticks(4));
 
-        _vis.svgContainer.selectAll("circle")
+        _vis.svgContainer.selectAll(".datapoint")
             .attr("cx", function (d) {
                 return newXAxisScale(d["Revenue"]);
             })
