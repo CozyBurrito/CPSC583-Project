@@ -40,6 +40,10 @@ var Scatterplot = function () {
     this.rScale;
     this.fillScale;
 
+    this.zoom;
+
+    this.tooltip;
+
     /**
      * Function setupScales initializes D3 scales for our x and y axes
      * @param xRange (required) array containing the bounds of the interval we are scaling to (e.g., [0,100]) for the x-axis
@@ -88,6 +92,7 @@ var Scatterplot = function () {
 
         // call our axes inside "group" (<g></g>) objects inside our SVG container
         this.svgContainer.append("g")
+            .attr("class", "xaxis")
             .attr("transform", `translate(0, ${this.height - MARGINS.bottom})`)
             .call(this.xAxis);
         this.svgContainer.append("g")
@@ -119,11 +124,20 @@ var Scatterplot = function () {
      * @param yAxisSelector the data property for values to appear in y-axis
      */
     this.createCircles = function (xAxisSelector, yAxisSelector) {
-        // default to Life Satisfaction and Employment Rate
+
+        var clip = _vis.svgContainer
+            .append("svg:clipPath")
+            .attr("id", "clip")
+            .append("svg:rect")
+            .attr("id", "clip-rect")
+            .attr("width", (_vis.width - MARGINS.left * 2))
+            .attr("height", (_vis.height - MARGINS.top - MARGINS.bottom + 26.25))
+            .attr('transform', 'translate(' + MARGINS.left + ',' + (MARGINS.top - 26.25) + ')');
+
         xAxisSelector = "Revenue";
         yAxisSelector = "Genre";
 
-        var tooltip = d3
+        this.tooltip = d3
             .componentsTooltip()
             .container(this.svgContainer)
             .content([
@@ -159,6 +173,7 @@ var Scatterplot = function () {
             .data(this.data)
             .enter()
             .append("circle")
+            .attr("clip-path", "url(#clip)")
             .attr("r", function (d) {                 // Scale radius based off of film's Runtime
                 return _vis.rScale(d["Runtime"]);
             })
@@ -177,12 +192,12 @@ var Scatterplot = function () {
                 var direction = "bottom";
                 var fill = _vis.fillScale(d["AvgRating"]);
 
-                if (yloc < this.height/4) {
+                if (yloc < this.height / 4) {
                     direction = "top";
                     yloc += 40;
                 }
 
-                tooltip
+                this.tooltip
                     .textColor("white")
                     .tooltipFill(fill)
                     .fontSize(14)
@@ -193,17 +208,30 @@ var Scatterplot = function () {
                     .rightMargin(13)
                     .contentMargin(5)
                     .heightOffset(8)
-                    .show({ title: d.Title, 
-                            genre: d.Genre, 
-                            director: d.Director, 
-                            runtime: d.Runtime, 
-                            revenue: d.Revenue, 
-                            avgRating: d.AvgRating
-                        });
+                    .show({
+                        title: d.Title,
+                        genre: d.Genre,
+                        director: d.Director,
+                        runtime: d.Runtime,
+                        revenue: d.Revenue,
+                        avgRating: d.AvgRating
+                    });
+
+                d3.select(d3.event.target)
+                    .style('stroke', 'silver')
+                    .style('opacity', 1)
+                    .style('stroke-width', 1.5);
+
             })
             .on("mouseleave", (d, i) => {
-                tooltip.hide();
+                this.tooltip.hide();
+
+                d3.select(d3.event.target)
+                    .style('stroke', 'whitesmoke')
+                    .style('opacity', 0.60)
+                    .style('stroke-width', 1);
             });
+
     }
 
     // Setup the legends from the scales. Uses d3-legend
@@ -238,6 +266,82 @@ var Scatterplot = function () {
 
         this.svgContainer.select(".legendSize")
             .call(legendSize);
+
+    }
+
+    this.setupZoom = function () {
+        this.zoom = d3.zoom()
+            .scaleExtent([1, 30])
+            .extent([[0, 0], [_vis.width, _vis.height]])
+            .on("zoom", this.updateChart);
+
+        this.svgContainer
+            .append("rect")
+            .attr("width", (_vis.width - MARGINS.left * 2))
+            .attr("height", (_vis.height - MARGINS.top - MARGINS.bottom + 26.25))
+            .style("fill", "black")
+            .style("opacity", 0)
+            .style("pointer-events", "scroll")
+            .attr('transform', 'translate(' + MARGINS.left + ',' + (MARGINS.top - 26.25) + ')')
+            .call(this.zoom);
+
+    }
+
+    this.updateChart = function () {
+        var newXAxisScale = d3.event.transform.rescaleX(_vis.xAxisScale);
+
+        d3.select(".xaxis")
+            .call(_vis.xAxis.scale(newXAxisScale).ticks(4));
+
+        _vis.svgContainer.selectAll("circle")
+            .attr("cx", function (d) {
+                return newXAxisScale(d["Revenue"]);
+            })
+            .on("mouseenter", (d, i) => {
+                var xloc = newXAxisScale(d["Revenue"]);
+                var yloc = _vis.yAxisScale(d["Genre"]) - 20;
+                var direction = "bottom";
+                var fill = _vis.fillScale(d["AvgRating"]);
+
+                if (yloc < _vis.height / 4) {
+                    direction = "top";
+                    yloc += 40;
+                }
+
+                _vis.tooltip
+                    .textColor("white")
+                    .tooltipFill(fill)
+                    .fontSize(14)
+                    .x(xloc)
+                    .y(yloc)
+                    .direction(direction)
+                    .leftMargin(3)
+                    .rightMargin(13)
+                    .contentMargin(5)
+                    .heightOffset(8)
+                    .show({
+                        title: d.Title,
+                        genre: d.Genre,
+                        director: d.Director,
+                        runtime: d.Runtime,
+                        revenue: d.Revenue,
+                        avgRating: d.AvgRating
+                    });
+
+                d3.select(d3.event.target)
+                    .style('stroke', 'silver')
+                    .style('opacity', 1)
+                    .style('stroke-width', 1.5);
+            })
+            .on("mouseleave", (d, i) => {
+                _vis.tooltip.hide();
+
+                d3.select(d3.event.target)
+                    .style('stroke', 'whitesmoke')
+                    .style('opacity', 0.60)
+                    .style('stroke-width', 1);
+            });
+
 
     }
 
@@ -277,6 +381,7 @@ function loadData(path) {
         _vis.setupScales([MARGINS.left, _vis.width - MARGINS.left], [1e-2, 950],
             [_vis.height - MARGINS.bottom - 30, MARGINS.top], CATEGORIES);
         _vis.setupAxes();
+        _vis.setupZoom();
         _vis.createCircles();
         _vis.setupLegends();
     });

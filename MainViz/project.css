@@ -19,7 +19,7 @@ html {
 }
 
 body {
-    padding: 20px;
+    padding: 5px;
 }
 
 h1{
@@ -136,4 +136,8 @@ circle {
 
 .swatch {
     opacity: 0.60;
+}
+
+.tooltip-shadow-wrapper-svg {
+    max-height: 0px;
 }
