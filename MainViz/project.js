@@ -44,6 +44,8 @@ var Scatterplot = function () {
 
     this.tooltip;
 
+    this.stayHighlightedColors = [];
+
     /**
      * Function setupScales initializes D3 scales for our x and y axes
      * @param xRange (required) array containing the bounds of the interval we are scaling to (e.g., [0,100]) for the x-axis
@@ -187,6 +189,9 @@ var Scatterplot = function () {
             .style("fill", function (d) {             // Color represents average rating
                 return _vis.fillScale(d["AvgRating"]);
             })
+            .attr("isFill", function (d) {             
+                return d3.select(this).style("fill");
+            })
             .on("mouseenter", (d, i) => {
                 var xloc = _vis.xAxisScale(d[xAxisSelector]);
                 var yloc = _vis.yAxisScale(d[yAxisSelector]) - 20;
@@ -268,6 +273,64 @@ var Scatterplot = function () {
         this.svgContainer.select(".legendSize")
             .call(legendSize);
 
+        this.svgContainer.selectAll(".legendQuant .legendCells .cell .swatch")
+            .attr('stayHighlighted', false)
+            .on('mouseover', function (d) {
+                d3.select(this)
+                    .style('opacity', 1)
+                    .style('stroke-width', 1.5);
+            })
+            .on('mouseout', function (d) {
+                if (d3.select(this).attr('stayHighlighted') == "false") {
+                    d3.select(this)
+                        .style('opacity', 0.6)
+                        .style('stroke-width', 0);
+                }
+            })
+            .on("click", function (d) {
+
+                if (d3.select(this).attr('stayHighlighted') == "false") {
+                    d3.select(this).attr('stayHighlighted', true);
+                    _vis.stayHighlightedColors.push(d3.select(this).style("fill"));
+                }
+                else {
+                    d3.select(this).attr('stayHighlighted', false);
+                    _vis.stayHighlightedColors = _vis.stayHighlightedColors.filter(item => item !== d3.select(this).style("fill"));
+                }
+
+                console.log(_vis.stayHighlightedColors);
+                
+
+                if (_vis.stayHighlightedColors.length == "0") {
+                    _vis.svgContainer.selectAll(".datapoint")
+                        .each(function (d) {
+                            d3.select(this)
+                                .style("fill", function (d) {
+                                    return _vis.fillScale(d["AvgRating"]);
+                                })
+                                .style('stroke-width', 1);
+                        });
+                }
+                else {                  
+                    _vis.svgContainer.selectAll(".datapoint")
+                        .each(function (d) {
+                            if (_vis.stayHighlightedColors.includes(d3.select(this).attr("isFill"))) {
+
+                                d3.select(this)
+                                    .style("fill", function (d) {
+                                        return _vis.fillScale(d["AvgRating"]);
+                                    })
+                                    .style('stroke-width', 1);
+                            }
+                            else {
+                                d3.select(this)
+                                    .style('fill', 'none')
+                                    .style('stroke-width', 0);
+                            }
+                        });
+                }
+
+            });
     }
 
     this.setupZoom = function () {

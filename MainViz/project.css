@@ -136,6 +136,8 @@ circle {
 
 .swatch {
     opacity: 0.60;
+    stroke: silver;
+    stroke-width: 0px;
 }
 
 .tooltip-shadow-wrapper-svg {
